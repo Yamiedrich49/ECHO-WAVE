@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#f5f8f6">
+<title>ECHO WEAVE — 光を編む</title>
+<style>
+:root{color-scheme:light;--ink:#263f45;--muted:#839a9d;--teal:#20b5b2;--gold:#dcb16a;--surface:#ffffff;--back:#f5f8f6;--rail:#f7faf9}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:var(--back);overscroll-behavior-y:none}
+body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif;background:radial-gradient(ellipse 100% 45% at 50% 0%,#e8f2ef 0,transparent 95%),#f5f8f6;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:focus-visible{outline:3px solid #7accc6;outline-offset:3px}
+.wrap{width:min(100%,480px);min-height:100svh;margin:auto;padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column}
+.top{height:44px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:10px;color:#31535a;font-size:13px;font-weight:800;letter-spacing:.21em}
+.brandmark{width:23px;height:23px;display:inline-grid;place-items:center}
+.brandmark svg{width:23px;height:23px}
+.topright{display:flex;align-items:center;gap:12px}
+.stagecount{font-variant-numeric:tabular-nums;font-size:13px;color:#80999a;letter-spacing:.025em}
+.stagecount strong{font-size:17px;color:#344e54;font-weight:710}
+.soundbtn{width:42px;height:42px;display:grid;place-items:center;background:transparent;color:#81999b;border:0;border-radius:13px}
+.soundbtn:active{background:#e5efec}
+.soundbtn svg{width:21px;height:21px}
+.progress{height:3px;display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin:14px 3px 24px}
+.progress>span{border-radius:9px;background:#dce7e3;transition:background-color .2s}
+.progress>span.done{background:#6fd0c2}
+.progress>span.current{background:#21a9aa}
+.intro{margin:0 5px 16px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.intro h1{font-size:clamp(25px,7.2vw,32px);letter-spacing:-.055em;font-weight:690;line-height:1.3;margin:0}
+.intro .tiny{font-size:10px;letter-spacing:.17em;color:#a0b2b0;white-space:nowrap;font-weight:650}
+.board{width:100%;border-radius:29px;background:rgba(255,255,255,.97);border:1px solid #e6eeeb;box-shadow:0 24px 48px rgba(43,89,80,.065),0 2px 8px rgba(43,89,80,.025);position:relative;overflow:hidden;isolation:isolate}
+.board svg{display:block;width:100%;height:auto;overflow:visible}
+#playfield{touch-action:pan-y}
+.dragzone{touch-action:none;cursor:grab}
+.board.dragging .dragzone{cursor:grabbing}
+.track{stroke:#dce8e3;stroke-width:1.4;stroke-linecap:round}
+.tick{fill:#cdded8}
+.label{fill:#809b9b;font-size:12px;font-weight:650;letter-spacing:.045em}
+.label2{fill:#a2b4b1;font-size:10px;font-weight:520;letter-spacing:.055em}
+.labelbold{fill:#4f7477;font-size:12px;font-weight:650;letter-spacing:.01em}
+#threads{opacity:0;transition:opacity .1s;pointer-events:none}
+.board.dragging #threads{opacity:1}
+.thread{fill:none;stroke-width:1.35;stroke-linecap:round;opacity:.42}
+.threadpulse{fill:none;stroke-width:1.5;stroke-linecap:round;opacity:.32;stroke-dasharray:2 10;animation:flow 1.6s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-48}}
+#resultDots circle{pointer-events:none}
+.baseOrb{fill:url(#orbBlend);filter:url(#glowSoft)}
+.activeOrb{fill:url(#orbBright);filter:url(#glowStrong)}
+.doubleOrb{fill:url(#orbDouble);filter:url(#glowSoft)}
+.orbCenter{fill:#f7fffc;opacity:.66}
+.piece{filter:url(#smallShadow);pointer-events:none}
+.piece.select{filter:url(#largeShadow)}
+.fixedPiece{opacity:.57}
+.pieceGlow{opacity:.0;pointer-events:none}
+.pieceGlow.show{opacity:1}
+.pieceGlow.pulse{animation:quietBreath 2.2s ease-in-out infinite}
+@keyframes quietBreath{0%,100%{opacity:.56}50%{opacity:.17}}
+#snapGhost{opacity:0;pointer-events:none}
+.board.dragging #snapGhost{opacity:1}
+#winStroke{pointer-events:none;opacity:0}
+.board.won #winStroke{opacity:1;animation:lineRise .7s ease-out both}
+@keyframes lineRise{0%{opacity:0;stroke-dasharray:1 900;stroke-dashoffset:350}60%{opacity:.75}100%{opacity:.45;stroke-dasharray:900 1;stroke-dashoffset:0}}
+#winLight{opacity:0;pointer-events:none}
+.board.won #winLight{animation:winBloom .85s ease-out forwards}
+@keyframes winBloom{0%{opacity:0}35%{opacity:.20}100%{opacity:.035}}
+#feedback{opacity:0;transition:opacity .24s}
+.board.won #feedback{opacity:1}
+.hint{min-height:42px;text-align:center;padding:14px 8px 10px;font-size:12.5px;letter-spacing:.01em;line-height:1.45;color:#7f9796;transition:color .2s}
+.board.won+.hint{color:#279d99}
+.footerControls{display:grid;grid-template-columns:46px 46px 1fr;gap:10px;align-items:center;margin:7px 0 0}
+.minibtn{width:46px;height:48px;border-radius:16px;display:grid;place-items:center;border:1px solid #dce8e3;background:#fff;color:#789093}
+.minibtn:active{background:#e9f2ee}
+.minibtn:disabled{color:#bbc9c7;background:#f3f7f5;opacity:.64}
+.minibtn svg{width:20px;height:20px}
+.next{height:48px;border:1px solid #d9e5e0;border-radius:16px;background:#e6eeea;color:#97aaa7;font-size:14px;font-weight:710;letter-spacing:.055em;display:flex;align-items:center;justify-content:center;gap:9px;transition:background-color .2s,color .2s,box-shadow .2s,border-color .2s}
+.next:disabled{cursor:default}
+.next.ready{color:white;background:#219f9e;border-color:#219f9e;box-shadow:0 8px 20px rgba(23,149,139,.17)}
+.next.ready:active{background:#148d8c}
+.next svg{width:18px;height:18px}
+.bottomSpace{flex:1;min-height:3px}
+.foot{margin:21px auto 0;font-size:9px;color:#aec0bc;letter-spacing:.14em;text-align:center}
+@media (max-height:740px){.wrap{padding-top:calc(env(safe-area-inset-top) + 10px)}.progress{margin:9px 3px 14px}.intro{margin-bottom:10px}.hint{padding:9px 5px 8px;min-height:32px}.foot{margin-top:10px}}
+@media (max-width:340px){.wrap{padding-left:12px;padding-right:12px}.progress{margin-bottom:14px}.intro h1{font-size:24px}}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="brand"><span class="brandmark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3.3" y="3.3" width="17.2" height="17.2" rx="5.5" stroke="#259c9d" stroke-width="1.9" transform="rotate(-12 12 12)"/><circle cx="18.2" cy="4.8" r="3.2" fill="#d9aa67" stroke="#f5f8f6" stroke-width="1.3"/></svg></span>ECHO WEAVE</div>
+  <div class="topright"><span class="stagecount"><strong id="stageNum">01</strong> / 12</span><button id="sound" class="soundbtn" aria-label="音のオン・オフ" title="音のオン・オフ"><svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/></svg></button></div>
+</header>
+<div class="progress" id="progress" aria-label="ステージの進行状況"></div>
+<div class="intro"><h1 id="stageTitle">ひとつ動かす</h1></div>
+<main class="board" id="board">
+<svg id="playfield" viewBox="0 0 360 510" role="img" aria-label="水色と金色の光を横へドラッグして、上の淡い輪の形に重ねるゲーム">
+ <defs>
+  <linearGradient id="orbBlend" x1=".1" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#b0eee0"/><stop offset=".38" stop-color="#65d8c3"/><stop offset="1" stop-color="#20b4ab"/></linearGradient>
+  <radialGradient id="orbBright" cx=".35" cy=".25" r=".85"><stop stop-color="#cbfff1"/><stop offset=".38" stop-color="#6ce9cc"/><stop offset="1" stop-color="#16b4a9"/></radialGradient>
+  <radialGradient id="orbDouble" cx=".3" cy=".25" r=".8"><stop stop-color="#f9ead5"/><stop offset=".4" stop-color="#e5c28d"/><stop offset="1" stop-color="#cba16a"/></radialGradient>
+  <radialGradient id="tealPiece" cx=".28" cy=".24" r=".81"><stop stop-color="#bcf6e9"/><stop offset=".45" stop-color="#52d1c4"/><stop offset="1" stop-color="#1b9fa9"/></radialGradient>
+  <radialGradient id="goldPiece" cx=".28" cy=".24" r=".81"><stop stop-color="#fff1d5"/><stop offset=".45" stop-color="#edc884"/><stop offset="1" stop-color="#d1a15e"/></radialGradient>
+  <radialGradient id="heroWash"><stop stop-color="#d9f5e9" stop-opacity=".86"/><stop offset="1" stop-color="#d9f5e9" stop-opacity="0"/></radialGradient>
+  <filter id="smallShadow" x="-80%" y="-80%" width="260%" height="260%"><feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#3e807b" flood-opacity=".16"/></filter>
+  <filter id="largeShadow" x="-150%" y="-150%" width="400%" height="400%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#2caba1" flood-opacity=".28"/></filter>
+  <filter id="glowSoft" x="-130%" y="-130%" width="360%" height="360%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <filter id="glowStrong" x="-170%" y="-170%" width="440%" height="440%"><feGaussianBlur in="SourceAlpha" stdDeviation="5.3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <linearGradient id="threadA" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#1bb5b4" stop-opacity=".6"/><stop offset="1" stop-color="#37b8ac" stop-opacity=".17"/></linearGradient>
+  <linearGradient id="threadB" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#dbab66" stop-opacity=".62"/><stop offset="1" stop-color="#34b5a9" stop-opacity=".2"/></linearGradient>
+ </defs>
+ <rect x="16" y="65" width="328" height="176" rx="24" fill="#f3f9f7" stroke="#edf3f0" stroke-width="1"/>
+ <ellipse cx="180" cy="143" rx="140" ry="65" fill="url(#heroWash)" opacity=".30"/>
+ <circle cx="32" cy="40" r="4" fill="#27a9a7"/><text x="45" y="44" class="labelbold">光をかさねる</text>
+ <text x="31" y="101" class="label2">目標の輪に ぴったり</text>
+ <g id="ghostGrid"></g>
+ <g id="goals"></g>
+ <g id="threads"></g>
+ <g id="resultDots"></g>
+ <path id="winStroke" d="" stroke="#52bfae" fill="none" stroke-width="2.4" stroke-linecap="round"/>
+ <rect id="winLight" x="19" y="68" width="322" height="170" rx="22" fill="#9ee9d6" opacity="0"/>
+ <g id="feedback"><text x="180" y="216" fill="#269e98" font-size="13" font-weight="700" text-anchor="middle" letter-spacing=".09em">ぴったり</text></g>
+ <path d="M174 267l6-6 6 6" fill="none" stroke="#b7cbc6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+ <g id="railBackA"><rect x="21" y="297" width="318" height="83" rx="19" fill="#f8fbfa" stroke="#edf1ef"/><line x1="37" y1="344" x2="323" y2="344" class="track"/></g>
+ <g id="railBackB"><rect x="21" y="403" width="318" height="83" rx="19" fill="#fafaf8" stroke="#f0f0eb"/><line x1="37" y1="450" x2="323" y2="450" class="track"/></g>
+ <circle cx="30" cy="288" r="4" fill="#27b5b3"/><text x="41" y="292" class="label">水色</text><text x="326" y="292" class="label2" text-anchor="end" id="aGuide">スライド</text>
+ <circle cx="30" cy="394" r="4" fill="#d8ac69"/><text x="41" y="398" class="label">金色</text><text x="326" y="398" class="label2" text-anchor="end" id="bGuide">固定</text>
+ <g id="ticksA"></g><g id="ticksB"></g>
+ <g id="piecesA"></g><g id="piecesB"></g>
+ <g id="snapGhost"><circle id="snapCircle" cx="0" cy="0" r="18" fill="none" stroke="#44b4b1" stroke-opacity=".44" stroke-width="1.5" stroke-dasharray="2 5"/></g>
+ <rect id="zoneA" class="dragzone" x="15" y="303" width="330" height="76" fill="transparent"/>
+ <rect id="zoneB" class="dragzone" x="15" y="409" width="330" height="76" fill="transparent"/>
+</svg>
+</main>
+<div class="hint" id="hint" aria-live="polite">光を横にすべらせよう</div>
+<div class="footerControls">
+ <button id="back" class="minibtn" aria-label="前のステージ" title="前のステージ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></svg></button>
+ <button id="reset" class="minibtn" aria-label="やり直す" title="やり直す"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.8M3 4v6h6"/></svg></button>
+ <button id="next" class="next" disabled><span id="nextText">光をそろえる</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+</div>
+<div class="bottomSpace"></div>
+<footer class="foot">A LITTLE EXPERIMENT IN MATHEMATICS</footer>
+</div>
+<script>
+(()=>{'use strict';
+const N=11, SX=37, PITCH=28.6, Y={a:344,b:450,out:152};
+const stages=[
+ {name:'ひとつ動かす',hint:'水色の光を横にすべらせよう',a:[0,3],b:[0,2,4],goalA:[0,1],goalB:[0,2,4],moveA:[1],moveB:[]},
+ {name:'光をひろげる',hint:'金色の光を動かしてみよう',a:[0,1],b:[0,3,5],goalA:[0,1],goalB:[0,3,6],moveA:[],moveB:[2]},
+ {name:'すきまを埋める',hint:'水色を動かすと、上も変わる',a:[0,4],b:[0,1,4],goalA:[0,2],goalB:[0,1,4],moveA:[1],moveB:[]},
+ {name:'つながる光',hint:'6つの輪を光で満たそう',a:[0,5],b:[0,1,2],goalA:[0,3],goalB:[0,1,2],moveA:[1],moveB:[]},
+ {name:'金色のひみつ',hint:'金色の光を少しずらしてみよう',a:[0,2],b:[0,1,5],goalA:[0,2],goalB:[0,1,4],moveA:[],moveB:[2]},
+ {name:'ふたつを動かす',hint:'どちらの光も動かせるよ',a:[0,2],b:[0,3,4],goalA:[0,1],goalB:[0,3,6],moveA:[1],moveB:[2]},
+ {name:'光がかさなる',hint:'重なった光は、少し濃くなる',a:[0,1,5],b:[0,3],goalA:[0,1,4],goalB:[0,3],moveA:[2],moveB:[]},
+ {name:'ふたつの指先',hint:'水色の2つの光を動かそう',a:[0,2,5],b:[0,2],goalA:[0,1,4],goalB:[0,2],moveA:[1,2],moveB:[]},
+ {name:'ずらしてみる',hint:'2色の光を組み合わせよう',a:[0,1],b:[0,2,5],goalA:[0,2],goalB:[0,1,5],moveA:[1],moveB:[1]},
+ {name:'光の重なり',hint:'2つ重なる場所も、ぴったり',a:[0,2,5],b:[0,1,4],goalA:[0,2,4],goalB:[0,1,3],moveA:[2],moveB:[2]},
+ {name:'六つの連なり',hint:'どの光から動かす？',a:[0,1,3],b:[0,2],goalA:[0,2,4],goalB:[0,1],moveA:[1,2],moveB:[1]},
+ {name:'ひかりの織り目',hint:'最後の模様を完成させよう',a:[0,1,4],b:[0,2,3],goalA:[0,3,6],goalB:[0,1,2],moveA:[1,2],moveB:[1,2]}
+];
+const $=id=>document.getElementById(id);const NS='http://www.w3.org/2000/svg';const svg=$('playfield'),board=$('board');
+function node(tag,attrs={},parent){const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));if(parent)parent.append(n);return n}
+function cx(p){return SX+p*PITCH}
+function convolution(a,b){const vals=Array(N).fill(0);for(const x of a)for(const y of b){const pos=x+y;if(pos>=0&&pos<N)vals[Math.round(pos)]++}return vals}
+function goalOf(stage){return convolution(stage.goalA,stage.goalB)}
+let level=0,model=null,goal=null,solved=false,drag=null,beads={a:[],b:[]},outputs=[],audio=null,soundOn=true,lastTick=0,anim=null,winTime=0;
+try{const saved=Number(localStorage.getItem('ew2_level'));if(Number.isInteger(saved)&&saved>=0&&saved<stages.length)level=saved;const sound=localStorage.getItem('ew2_sound');if(sound!==null)soundOn=sound==='1'}catch(_){}
+const icons={on:'<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/>',off:'<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m16 9 5 6m0-6-5 6"/>'};
+function updateSoundIcon(){$('soundIcon').innerHTML=icons[soundOn?'on':'off']}
+function ensureAudio(){if(!soundOn)return null;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!audio)audio=new AC();if(audio.state==='suspended')audio.resume().catch(()=>{});return audio}catch(_){return null}}
+function note(frequency,volume=.017,seconds=.07,delay=0){const a=ensureAudio();if(!a)return;const time=a.currentTime+delay;const osc=a.createOscillator(),gain=a.createGain(),filter=a.createBiquadFilter();osc.type='sine';filter.type='lowpass';filter.frequency.value=2300;osc.frequency.setValueAtTime(frequency,time);osc.frequency.exponentialRampToValueAtTime(frequency*.96,time+seconds);gain.gain.setValueAtTime(.00001,time);gain.gain.exponentialRampToValueAtTime(volume,time+.004);gain.gain.exponentialRampToValueAtTime(.00001,time+seconds);osc.connect(filter);filter.connect(gain);gain.connect(a.destination);osc.start(time);osc.stop(time+seconds+.012)}
+function tick(){let t=performance.now();if(t-lastTick<75)return;lastTick=t;note(850,.006,.035)}
+function dockSound(){note(940,.016,.060);note(1410,.004,.043,.009)}
+function victory(){note(587.33,.018,.20);note(880,.016,.28,.12);note(1174.66,.008,.35,.26)}
+function renderProgress(){$('progress').innerHTML=stages.map((_,i)=>'<span class="'+(i<level?'done':i===level?'current':'')+'"></span>').join('')}
+function renderTicks(){for(const lane of ['a','b']){const g=$('ticks'+lane.toUpperCase());g.replaceChildren();for(let i=0;i<N;i++)node('circle',{cx:cx(i),cy:Y[lane],r:2,class:'tick'},g)}}
+function renderGoals(){const a=$('goals'),grid=$('ghostGrid');a.replaceChildren();grid.replaceChildren();for(let i=0;i<N;i++)node('circle',{cx:cx(i),cy:Y.out,r:2.1,fill:'#deebe5'},grid);
+ for(let i=0;i<N;i++)if(goal[i]){node('circle',{cx:cx(i),cy:Y.out,r:goal[i]>1?15.2:13.7,fill:goal[i]>1?'#f6eee2':'#eaf2ef',stroke:goal[i]>1?'#e5cda7':'#c6dad3','stroke-width':goal[i]>1?1.7:1.65},a);if(goal[i]>1)node('circle',{cx:cx(i),cy:Y.out,r:10,fill:'none',stroke:'#ddc39c','stroke-width':1.05},a)} }
+function renderPieces(){for(const lane of ['a','b']){const group=$('pieces'+lane.toUpperCase());group.replaceChildren();beads[lane]=[];model[lane].forEach((v,i)=>{const canMove=stages[level]['move'+lane.toUpperCase()].includes(i);const wrap=node('g',{'data-index':i},group);const aura=node('circle',{cx:cx(v),cy:Y[lane],r:24,fill:lane==='a'?'#8de4dc':'#f0d19b',opacity:0,class:'pieceGlow'+(level<=1&&canMove?' pulse show':'')},wrap);
+ const outer=node('circle',{cx:cx(v),cy:Y[lane],r:canMove?16.8:13.2,fill:lane==='a'?'#d6f6ef':'#faedda',opacity:canMove?.56:.42},wrap);
+ const core=node('circle',{cx:cx(v),cy:Y[lane],r:canMove?12.6:9.7,fill:lane==='a'?'url(#tealPiece)':'url(#goldPiece)',class:'piece'+(canMove?'':' fixedPiece')},wrap);
+ const highlight=node('circle',{cx:cx(v)-3,cy:Y[lane]-3.2,r:canMove?3.5:2.5,fill:'#fff',opacity:canMove?.65:.43},wrap);
+ beads[lane].push({aura,outer,core,highlight,canMove,wrap})})}}
+function makeOutputs(){const group=$('resultDots');group.replaceChildren();outputs=[];for(let ai=0;ai<model.a.length;ai++)for(let bi=0;bi<model.b.length;bi++){let g=node('g',{},group);let halo=node('circle',{cx:0,cy:Y.out,r:16,fill:'#57d3bb',opacity:'.10'},g);let circle=node('circle',{cx:0,cy:Y.out,r:9.3,class:'baseOrb'},g);let glint=node('circle',{cx:0,cy:Y.out,r:2.7,fill:'#edfff9',opacity:'.55'},g);outputs.push({ai,bi,g,halo,circle,glint})}}
+function pointFromEvent(ev){const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;const matrix=svg.getScreenCTM();return matrix?p.matrixTransform(matrix.inverse()):{x:ev.clientX,y:ev.clientY}}
+function effectiveMax(lane){const other=lane==='a'?'b':'a';return N-1-Math.max(...model[other])}
+function nearestFree(lane,index,desired){const max=effectiveMax(lane),occupied=model[lane].map((v,j)=>j===index?null:Math.round(v)).filter(v=>v!==null);const candidates=Array.from({length:max+1},(_,i)=>i).filter(v=>!occupied.includes(v));return candidates.length?candidates.reduce((p,c)=>Math.abs(c-desired)<Math.abs(p-desired)?c:p,candidates[0]):Math.round(model[lane][index])}
+function getLiveCounts(){const arr=Array(N).fill(0);if(!drag){for(const x of model.a)for(const y of model.b){const s=x+y;if(Math.abs(s-Math.round(s))<.001&&s>=0&&s<N)arr[Math.round(s)]++}}return arr}
+function drawThreads(){const lines=$('threads');lines.replaceChildren();if(!drag)return;const lane=drag.lane,index=drag.index;const moves=lane==='a'?model.b:model.a;const fromX=cx(model[lane][index]),fromY=Y[lane];for(const offset of moves){const toX=cx(model[lane][index]+offset),toY=Y.out+10;const arc=lane==='a'?`M ${fromX} ${fromY-13} C ${fromX} ${fromY-72}, ${toX} ${toY+80}, ${toX} ${toY}`:`M ${fromX} ${fromY-15} C ${fromX} ${fromY-118}, ${toX} ${toY+75}, ${toX} ${toY}`;const color=lane==='a'?'url(#threadA)':'url(#threadB)';node('path',{d:arc,class:'thread',stroke:color},lines);node('path',{d:arc,class:'threadpulse',stroke:color},lines)}}
+function paint(){if(!model)return;
+ for(const lane of ['a','b'])model[lane].forEach((v,i)=>{const p=beads[lane][i],sel=!!drag&&drag.lane===lane&&drag.index===i;p.aura.setAttribute('cx',cx(v));p.aura.setAttribute('opacity',sel?'.28':!solved&&level<=1&&p.canMove?'.18':'0');p.outer.setAttribute('cx',cx(v));p.core.setAttribute('cx',cx(v));p.core.setAttribute('r',sel?'14.1':p.canMove?'12.6':'9.7');p.highlight.setAttribute('cx',cx(v)-3);p.wrap.classList.toggle('select',sel)});
+ let counts=Array(N).fill(0);for(const item of outputs){const value=model.a[item.ai]+model.b[item.bi];if(Math.abs(Math.round(value)-value)<.06&&value>=0&&value<N)counts[Math.round(value)]++}
+ for(const item of outputs){const {ai,bi,circle,halo,glint}=item;const v=model.a[ai]+model.b[bi];const isHot=drag&&((drag.lane==='a'&&drag.index===ai)||(drag.lane==='b'&&drag.index===bi));let double=Math.abs(v-Math.round(v))<.09&&counts[Math.round(v)]>1;
+ item.g.setAttribute('transform',`translate(${cx(v)} 0)`);halo.setAttribute('opacity',isHot?'.30':double?'.18':'.08');halo.setAttribute('fill',double?'#e6b76f':'#56d8b7');halo.setAttribute('r',isHot?19:double?17:14);circle.setAttribute('class',double?'doubleOrb':isHot?'activeOrb':'baseOrb');circle.setAttribute('r',isHot?10.4:double?10.5:9);circle.setAttribute('opacity',drag&&!isHot?'.58':'.95')}
+ const ghost=$('snapGhost');if(drag){const v=model[drag.lane][drag.index];const nearest=nearestFree(drag.lane,drag.index,Math.round(v));$('snapCircle').setAttribute('cx',cx(nearest));$('snapCircle').setAttribute('cy',Y[drag.lane]);$('snapCircle').setAttribute('stroke',drag.lane==='a'?'#41b6b0':'#d3ac67')}
+ drawThreads();
+}
+function stopAnimation(){if(anim){cancelAnimationFrame(anim);anim=null}}
+function snapTo(lane,index,to,done){stopAnimation();const from=model[lane][index];const delta=to-from;const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduced||Math.abs(delta)<.03){model[lane][index]=to;paint();done();return}
+ let start=null;const duration=112;const run=now=>{if(start===null)start=now;const t=Math.min(1,(now-start)/duration);const eased=1-Math.pow(1-t,3);model[lane][index]=from+delta*eased;paint();if(t<1)anim=requestAnimationFrame(run);else{anim=null;model[lane][index]=to;paint();done()}};anim=requestAnimationFrame(run)}
+function endDrag(ev,cancel=false){if(!drag||ev.pointerId!==drag.pointerId)return;const d=drag;const zone=$('zone'+d.lane.toUpperCase());try{zone.releasePointerCapture(ev.pointerId)}catch(_){};drag=null;board.classList.remove('dragging');const dest=cancel?d.origin:nearestFree(d.lane,d.index,Math.round(model[d.lane][d.index]));const different=Math.abs(dest-d.origin)>.02;
+ snapTo(d.lane,d.index,dest,()=>{if(different)dockSound();paint();checkWin()});}
+function startDrag(ev,lane){if(solved||drag||ev.button>0)return;stopAnimation();const movable=stages[level]['move'+lane.toUpperCase()];if(!movable.length)return;const p=pointFromEvent(ev);let closest=movable[0];for(const index of movable)if(Math.abs(cx(model[lane][index])-p.x)<Math.abs(cx(model[lane][closest])-p.x))closest=index;
+ if(Math.abs(cx(model[lane][closest])-p.x)>29)return;
+ drag={lane,index:closest,pointerId:ev.pointerId,origin:model[lane][closest],pointerOrigin:p.x,lastRounded:Math.round(model[lane][closest]),travel:0};board.classList.add('dragging');$('zone'+lane.toUpperCase()).setPointerCapture(ev.pointerId);ensureAudio();ev.preventDefault();paint();}
+function moveDrag(ev){if(!drag||ev.pointerId!==drag.pointerId)return;const p=pointFromEvent(ev),d=drag;const delta=(p.x-d.pointerOrigin)/PITCH;const max=effectiveMax(d.lane);const next=Math.max(0,Math.min(max,d.origin+delta));if(Math.abs(next-model[d.lane][d.index])<.0001)return;model[d.lane][d.index]=next;d.travel=Math.max(d.travel,Math.abs(delta));const rounded=Math.round(next);if(rounded!==d.lastRounded){d.lastRounded=rounded;tick()}paint();ev.preventDefault()}
+function checkWin(){if(solved)return;const live=convolution(model.a.map(Math.round),model.b.map(Math.round));if(!live.every((v,i)=>v===goal[i]))return;solved=true;board.classList.add('won');winTime=performance.now();$('hint').textContent='きれいに そろった';$('next').disabled=false;$('next').classList.add('ready');$('nextText').textContent=level===stages.length-1?'もういちど':'次のステージ';const hit=live.map((v,i)=>v?i:-1).filter(x=>x>=0);const first=hit[0],last=hit.at(-1);$('winStroke').setAttribute('d',`M ${cx(first)-13} ${Y.out+24} Q ${cx((first+last)/2)} ${Y.out+33} ${cx(last)+13} ${Y.out+24}`);victory();try{localStorage.setItem('ew2_level',String(level===stages.length-1?0:level+1))}catch(_){} }
+function loadStage(index){stopAnimation();level=Math.max(0,Math.min(index,stages.length-1));const s=stages[level];model={a:[...s.a],b:[...s.b]};goal=goalOf(s);solved=false;drag=null;board.classList.remove('dragging','won');$('stageNum').textContent=String(level+1).padStart(2,'0');$('stageTitle').textContent=s.name;$('hint').textContent=s.hint;$('next').disabled=true;$('next').classList.remove('ready');$('nextText').textContent='光をそろえる';$('back').disabled=level===0;
+ $('aGuide').textContent=s.moveA.length?'スライド':'固定';$('bGuide').textContent=s.moveB.length?'スライド':'固定';renderProgress();renderGoals();renderPieces();makeOutputs();paint();try{localStorage.setItem('ew2_level',String(level))}catch(_){} }
+for(const lane of ['a','b']){const z=$('zone'+lane.toUpperCase());z.addEventListener('pointerdown',e=>startDrag(e,lane));z.addEventListener('pointermove',moveDrag);z.addEventListener('pointerup',e=>endDrag(e,false));z.addEventListener('pointercancel',e=>endDrag(e,true));}
+$('sound').addEventListener('click',()=>{soundOn=!soundOn;try{localStorage.setItem('ew2_sound',soundOn?'1':'0')}catch(_){}updateSoundIcon();if(soundOn){ensureAudio();note(940,.014,.09)}});
+$('back').addEventListener('click',()=>{loadStage(level-1);note(690,.01,.04)});$('reset').addEventListener('click',()=>{loadStage(level);note(690,.01,.04)});$('next').addEventListener('click',()=>{if(!solved)return;loadStage(level===stages.length-1?0:level+1);note(880,.014,.09)});
+// Debug interface for automated stage verification. Not part of gameplay.
+window.__echoV2={stages,loadStage,getState:()=>({level,solved,model:JSON.parse(JSON.stringify(model)),goal:[...goal]}),setPosition:(lane,index,pos)=>{model[lane][index]=pos;paint()},checkWin};
+for(const [i,s] of stages.entries()){if(JSON.stringify(convolution(s.a,s.b))===JSON.stringify(goalOf(s)))throw Error('Stage starts solved: '+i);if(Math.max(...s.goalA)+Math.max(...s.goalB)>=N)throw Error('Stage out of bounds: '+i)}
+renderTicks();updateSoundIcon();loadStage(level);
+})();
+</script>
+</body>
+</html>
