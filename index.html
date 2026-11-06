@@ -1,221 +1,92 @@
 <!doctype html>
-<html lang="ja">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="theme-color" content="#f5f8f6">
-<title>ECHO WEAVE — 光を編む</title>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><meta name="theme-color" content="#f5f7f4"><title>ECHO WEAVE — 光のコピー</title>
 <style>
-:root{color-scheme:light;--ink:#263f45;--muted:#839a9d;--teal:#20b5b2;--gold:#dcb16a;--surface:#ffffff;--back:#f5f8f6;--rail:#f7faf9}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{background:var(--back);overscroll-behavior-y:none}
-body{margin:0;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif;background:radial-gradient(ellipse 100% 45% at 50% 0%,#e8f2ef 0,transparent 95%),#f5f8f6;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
-button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
-button:focus-visible{outline:3px solid #7accc6;outline-offset:3px}
-.wrap{width:min(100%,480px);min-height:100svh;margin:auto;padding:calc(env(safe-area-inset-top) + 20px) 16px calc(env(safe-area-inset-bottom) + 18px);display:flex;flex-direction:column}
-.top{height:44px;display:flex;align-items:center;justify-content:space-between}
-.brand{display:flex;align-items:center;gap:10px;color:#31535a;font-size:13px;font-weight:800;letter-spacing:.21em}
-.brandmark{width:23px;height:23px;display:inline-grid;place-items:center}
-.brandmark svg{width:23px;height:23px}
-.topright{display:flex;align-items:center;gap:12px}
-.stagecount{font-variant-numeric:tabular-nums;font-size:13px;color:#80999a;letter-spacing:.025em}
-.stagecount strong{font-size:17px;color:#344e54;font-weight:710}
-.soundbtn{width:42px;height:42px;display:grid;place-items:center;background:transparent;color:#81999b;border:0;border-radius:13px}
-.soundbtn:active{background:#e5efec}
-.soundbtn svg{width:21px;height:21px}
-.progress{height:3px;display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin:14px 3px 24px}
-.progress>span{border-radius:9px;background:#dce7e3;transition:background-color .2s}
-.progress>span.done{background:#6fd0c2}
-.progress>span.current{background:#21a9aa}
-.intro{margin:0 5px 16px;display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.intro h1{font-size:clamp(25px,7.2vw,32px);letter-spacing:-.055em;font-weight:690;line-height:1.3;margin:0}
-.intro .tiny{font-size:10px;letter-spacing:.17em;color:#a0b2b0;white-space:nowrap;font-weight:650}
-.board{width:100%;border-radius:29px;background:rgba(255,255,255,.97);border:1px solid #e6eeeb;box-shadow:0 24px 48px rgba(43,89,80,.065),0 2px 8px rgba(43,89,80,.025);position:relative;overflow:hidden;isolation:isolate}
-.board svg{display:block;width:100%;height:auto;overflow:visible}
-#playfield{touch-action:pan-y}
-.dragzone{touch-action:none;cursor:grab}
-.board.dragging .dragzone{cursor:grabbing}
-.track{stroke:#dce8e3;stroke-width:1.4;stroke-linecap:round}
-.tick{fill:#cdded8}
-.label{fill:#809b9b;font-size:12px;font-weight:650;letter-spacing:.045em}
-.label2{fill:#a2b4b1;font-size:10px;font-weight:520;letter-spacing:.055em}
-.labelbold{fill:#4f7477;font-size:12px;font-weight:650;letter-spacing:.01em}
-#threads{opacity:0;transition:opacity .1s;pointer-events:none}
-.board.dragging #threads{opacity:1}
-.thread{fill:none;stroke-width:1.35;stroke-linecap:round;opacity:.42}
-.threadpulse{fill:none;stroke-width:1.5;stroke-linecap:round;opacity:.32;stroke-dasharray:2 10;animation:flow 1.6s linear infinite}
-@keyframes flow{to{stroke-dashoffset:-48}}
-#resultDots circle{pointer-events:none}
-.baseOrb{fill:url(#orbBlend);filter:url(#glowSoft)}
-.activeOrb{fill:url(#orbBright);filter:url(#glowStrong)}
-.doubleOrb{fill:url(#orbDouble);filter:url(#glowSoft)}
-.orbCenter{fill:#f7fffc;opacity:.66}
-.piece{filter:url(#smallShadow);pointer-events:none}
-.piece.select{filter:url(#largeShadow)}
-.fixedPiece{opacity:.57}
-.pieceGlow{opacity:.0;pointer-events:none}
-.pieceGlow.show{opacity:1}
-.pieceGlow.pulse{animation:quietBreath 2.2s ease-in-out infinite}
-@keyframes quietBreath{0%,100%{opacity:.56}50%{opacity:.17}}
-#snapGhost{opacity:0;pointer-events:none}
-.board.dragging #snapGhost{opacity:1}
-#winStroke{pointer-events:none;opacity:0}
-.board.won #winStroke{opacity:1;animation:lineRise .7s ease-out both}
-@keyframes lineRise{0%{opacity:0;stroke-dasharray:1 900;stroke-dashoffset:350}60%{opacity:.75}100%{opacity:.45;stroke-dasharray:900 1;stroke-dashoffset:0}}
-#winLight{opacity:0;pointer-events:none}
-.board.won #winLight{animation:winBloom .85s ease-out forwards}
-@keyframes winBloom{0%{opacity:0}35%{opacity:.20}100%{opacity:.035}}
-#feedback{opacity:0;transition:opacity .24s}
-.board.won #feedback{opacity:1}
-.hint{min-height:42px;text-align:center;padding:14px 8px 10px;font-size:12.5px;letter-spacing:.01em;line-height:1.45;color:#7f9796;transition:color .2s}
-.board.won+.hint{color:#279d99}
-.footerControls{display:grid;grid-template-columns:46px 46px 1fr;gap:10px;align-items:center;margin:7px 0 0}
-.minibtn{width:46px;height:48px;border-radius:16px;display:grid;place-items:center;border:1px solid #dce8e3;background:#fff;color:#789093}
-.minibtn:active{background:#e9f2ee}
-.minibtn:disabled{color:#bbc9c7;background:#f3f7f5;opacity:.64}
-.minibtn svg{width:20px;height:20px}
-.next{height:48px;border:1px solid #d9e5e0;border-radius:16px;background:#e6eeea;color:#97aaa7;font-size:14px;font-weight:710;letter-spacing:.055em;display:flex;align-items:center;justify-content:center;gap:9px;transition:background-color .2s,color .2s,box-shadow .2s,border-color .2s}
-.next:disabled{cursor:default}
-.next.ready{color:white;background:#219f9e;border-color:#219f9e;box-shadow:0 8px 20px rgba(23,149,139,.17)}
-.next.ready:active{background:#148d8c}
-.next svg{width:18px;height:18px}
-.bottomSpace{flex:1;min-height:3px}
-.foot{margin:21px auto 0;font-size:9px;color:#aec0bc;letter-spacing:.14em;text-align:center}
-@media (max-height:740px){.wrap{padding-top:calc(env(safe-area-inset-top) + 10px)}.progress{margin:9px 3px 14px}.intro{margin-bottom:10px}.hint{padding:9px 5px 8px;min-height:32px}.foot{margin-top:10px}}
-@media (max-width:340px){.wrap{padding-left:12px;padding-right:12px}.progress{margin-bottom:14px}.intro h1{font-size:24px}}
-@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
-</style>
-</head>
-<body>
-<div class="wrap">
-<header class="top">
-  <div class="brand"><span class="brandmark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><rect x="3.3" y="3.3" width="17.2" height="17.2" rx="5.5" stroke="#259c9d" stroke-width="1.9" transform="rotate(-12 12 12)"/><circle cx="18.2" cy="4.8" r="3.2" fill="#d9aa67" stroke="#f5f8f6" stroke-width="1.3"/></svg></span>ECHO WEAVE</div>
-  <div class="topright"><span class="stagecount"><strong id="stageNum">01</strong> / 12</span><button id="sound" class="soundbtn" aria-label="音のオン・オフ" title="音のオン・オフ"><svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/></svg></button></div>
-</header>
-<div class="progress" id="progress" aria-label="ステージの進行状況"></div>
-<div class="intro"><h1 id="stageTitle">ひとつ動かす</h1></div>
-<main class="board" id="board">
-<svg id="playfield" viewBox="0 0 360 510" role="img" aria-label="水色と金色の光を横へドラッグして、上の淡い輪の形に重ねるゲーム">
- <defs>
-  <linearGradient id="orbBlend" x1=".1" y1="0" x2=".8" y2="1"><stop offset="0" stop-color="#b0eee0"/><stop offset=".38" stop-color="#65d8c3"/><stop offset="1" stop-color="#20b4ab"/></linearGradient>
-  <radialGradient id="orbBright" cx=".35" cy=".25" r=".85"><stop stop-color="#cbfff1"/><stop offset=".38" stop-color="#6ce9cc"/><stop offset="1" stop-color="#16b4a9"/></radialGradient>
-  <radialGradient id="orbDouble" cx=".3" cy=".25" r=".8"><stop stop-color="#f9ead5"/><stop offset=".4" stop-color="#e5c28d"/><stop offset="1" stop-color="#cba16a"/></radialGradient>
-  <radialGradient id="tealPiece" cx=".28" cy=".24" r=".81"><stop stop-color="#bcf6e9"/><stop offset=".45" stop-color="#52d1c4"/><stop offset="1" stop-color="#1b9fa9"/></radialGradient>
-  <radialGradient id="goldPiece" cx=".28" cy=".24" r=".81"><stop stop-color="#fff1d5"/><stop offset=".45" stop-color="#edc884"/><stop offset="1" stop-color="#d1a15e"/></radialGradient>
-  <radialGradient id="heroWash"><stop stop-color="#d9f5e9" stop-opacity=".86"/><stop offset="1" stop-color="#d9f5e9" stop-opacity="0"/></radialGradient>
-  <filter id="smallShadow" x="-80%" y="-80%" width="260%" height="260%"><feDropShadow dx="0" dy="3" stdDeviation="2.2" flood-color="#3e807b" flood-opacity=".16"/></filter>
-  <filter id="largeShadow" x="-150%" y="-150%" width="400%" height="400%"><feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#2caba1" flood-opacity=".28"/></filter>
-  <filter id="glowSoft" x="-130%" y="-130%" width="360%" height="360%"><feGaussianBlur in="SourceAlpha" stdDeviation="3.5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  <filter id="glowStrong" x="-170%" y="-170%" width="440%" height="440%"><feGaussianBlur in="SourceAlpha" stdDeviation="5.3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  <linearGradient id="threadA" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#1bb5b4" stop-opacity=".6"/><stop offset="1" stop-color="#37b8ac" stop-opacity=".17"/></linearGradient>
-  <linearGradient id="threadB" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#dbab66" stop-opacity=".62"/><stop offset="1" stop-color="#34b5a9" stop-opacity=".2"/></linearGradient>
- </defs>
- <rect x="16" y="65" width="328" height="176" rx="24" fill="#f3f9f7" stroke="#edf3f0" stroke-width="1"/>
- <ellipse cx="180" cy="143" rx="140" ry="65" fill="url(#heroWash)" opacity=".30"/>
- <circle cx="32" cy="40" r="4" fill="#27a9a7"/><text x="45" y="44" class="labelbold">光をかさねる</text>
- <text x="31" y="101" class="label2">目標の輪に ぴったり</text>
- <g id="ghostGrid"></g>
- <g id="goals"></g>
- <g id="threads"></g>
- <g id="resultDots"></g>
- <path id="winStroke" d="" stroke="#52bfae" fill="none" stroke-width="2.4" stroke-linecap="round"/>
- <rect id="winLight" x="19" y="68" width="322" height="170" rx="22" fill="#9ee9d6" opacity="0"/>
- <g id="feedback"><text x="180" y="216" fill="#269e98" font-size="13" font-weight="700" text-anchor="middle" letter-spacing=".09em">ぴったり</text></g>
- <path d="M174 267l6-6 6 6" fill="none" stroke="#b7cbc6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
- <g id="railBackA"><rect x="21" y="297" width="318" height="83" rx="19" fill="#f8fbfa" stroke="#edf1ef"/><line x1="37" y1="344" x2="323" y2="344" class="track"/></g>
- <g id="railBackB"><rect x="21" y="403" width="318" height="83" rx="19" fill="#fafaf8" stroke="#f0f0eb"/><line x1="37" y1="450" x2="323" y2="450" class="track"/></g>
- <circle cx="30" cy="288" r="4" fill="#27b5b3"/><text x="41" y="292" class="label">水色</text><text x="326" y="292" class="label2" text-anchor="end" id="aGuide">スライド</text>
- <circle cx="30" cy="394" r="4" fill="#d8ac69"/><text x="41" y="398" class="label">金色</text><text x="326" y="398" class="label2" text-anchor="end" id="bGuide">固定</text>
- <g id="ticksA"></g><g id="ticksB"></g>
- <g id="piecesA"></g><g id="piecesB"></g>
- <g id="snapGhost"><circle id="snapCircle" cx="0" cy="0" r="18" fill="none" stroke="#44b4b1" stroke-opacity=".44" stroke-width="1.5" stroke-dasharray="2 5"/></g>
- <rect id="zoneA" class="dragzone" x="15" y="303" width="330" height="76" fill="transparent"/>
- <rect id="zoneB" class="dragzone" x="15" y="409" width="330" height="76" fill="transparent"/>
-</svg>
-</main>
-<div class="hint" id="hint" aria-live="polite">光を横にすべらせよう</div>
-<div class="footerControls">
- <button id="back" class="minibtn" aria-label="前のステージ" title="前のステージ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18 9 12l6-6"/></svg></button>
- <button id="reset" class="minibtn" aria-label="やり直す" title="やり直す"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.8M3 4v6h6"/></svg></button>
- <button id="next" class="next" disabled><span id="nextText">光をそろえる</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
+:root{--bg:#f5f7f4;--ink:#273e41;--sub:#83979a;--teal:#159f9e;--gold:#d9a55c;--line:#dde8e3;--white:#fff}*{box-sizing:border-box}html{height:100%;background:var(--bg);overscroll-behavior:none}body{margin:0;min-height:100%;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Hiragino Sans",Meiryo,sans-serif;background:radial-gradient(ellipse at 50% -30%,#e1f4ec 0,transparent 68%),var(--bg);-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}button{font:inherit;cursor:pointer;touch-action:manipulation}button:focus-visible{outline:3px solid #69c9c1;outline-offset:2px}.app{max-width:470px;min-height:100svh;margin:auto;padding:calc(env(safe-area-inset-top) + 14px) 14px calc(env(safe-area-inset-bottom) + 16px);display:flex;flex-direction:column}.head{display:flex;align-items:center;justify-content:space-between;min-height:42px}.brand{font-size:12px;font-weight:800;letter-spacing:.19em;display:flex;align-items:center;gap:10px}.logo{width:23px;height:23px;border:1.7px solid #179e9c;border-radius:6px;transform:rotate(-10deg);position:relative}.logo:after{content:"";width:8px;height:8px;background:#e2b66d;border:2px solid var(--bg);position:absolute;right:-5px;top:-6px;border-radius:50%}.head-right{display:flex;align-items:center;gap:13px}.count{font-size:12px;color:#95a8a8;font-variant-numeric:tabular-nums}.count b{font-size:16px;color:#4c6869}.icon-btn{width:37px;height:37px;border:none;background:transparent;color:#859b9a;border-radius:12px;display:grid;place-items:center}.icon-btn:active{background:#e3ede8}.icon-btn svg{width:20px;height:20px}.progress{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin:7px 2px 10px}.progress span{height:3px;border-radius:9px;background:#dfe8e3}.progress span.past{background:#7bcfc2}.progress span.current{background:#14a8a3}.caption-head{display:flex;align-items:end;justify-content:space-between;gap:6px;margin:0 5px 8px}.title{font-size:clamp(22px,6vw,29px);letter-spacing:-.055em;font-weight:720;line-height:1.25;margin:0 0 4px}.subtitle{font-size:12px;line-height:1.6;color:#839a98;min-height:19px}.tag{align-self:flex-start;margin-top:4px;font-size:9px;letter-spacing:.1em;color:#a0b4b0;white-space:nowrap}.panel{border:1px solid #e4ebe6;background:#fff;border-radius:25px;overflow:hidden;box-shadow:0 18px 36px rgba(51,89,84,.055),0 2px 6px rgba(45,90,85,.025)}svg{display:block;width:100%;height:auto;touch-action:none}.track{stroke:#e1e9e5;stroke-width:1.35;stroke-linecap:round}.grid-dot{fill:#d8e6df}.svg-label{fill:#688886;font-size:11px;font-weight:670;letter-spacing:.015em}.svg-micro{fill:#a0b4b0;font-size:10px}.output-halo{filter:url(#softGlow)}.copy-strip{fill:#fff;stroke:#e0e9e4;stroke-width:1}.copy-strip.active{fill:#f4fcf9;stroke:#99d7ca}.copy-dot{fill:#e5bc7c}.copy-dot.active{fill:#d9a15c}.target{stroke:#a3c9bd;stroke-width:1.8;fill:#f8fcfa}.target.duo{stroke:#dbb681;fill:#fffaf4}.result-dot{filter:url(#softGlow)}.board-foot{display:flex;align-items:center;justify-content:space-between;padding:0 15px 5px;min-height:31px;margin-top:-8px;position:relative;z-index:3}.mode-btn{background:none;border:0;color:#6e9390;font-size:12px;font-weight:680;padding:9px 5px;border-radius:8px;display:flex;gap:6px;align-items:center}.mode-btn .chevron{font-size:13px;transition:transform .2s}.mode-btn.off .chevron{transform:rotate(180deg)}.legend{display:flex;align-items:center;gap:5px;color:#a3b4af;font-size:10px;opacity:0;transition:opacity .2s}.legend.show{opacity:1}.legend i{width:13px;height:13px;border:2px solid #d2a86f;border-radius:50%;display:inline-block;position:relative}.legend i:after{content:"";position:absolute;width:10px;height:10px;border:2px solid #d2a86f;border-radius:50%;left:4px;top:-5px;background:#fff8f0}.microhint{text-align:center;min-height:29px;font-size:12px;color:#809a98;padding:7px 5px 3px}.actions{display:grid;grid-template-columns:48px 48px 1fr;gap:9px;margin-top:5px}.smallbtn,.next{height:48px;border:1px solid #dde8e3;border-radius:15px;background:white;color:#7e9695;display:flex;align-items:center;justify-content:center}.smallbtn svg{width:19px;height:19px}.smallbtn:disabled{opacity:.3}.next{font-size:14px;letter-spacing:.04em;font-weight:700;background:#edf3ef;color:#99aaa4}.next.ready{background:#189e99;border-color:#189e99;color:white;box-shadow:0 5px 15px rgba(24,158,153,.13)}.tinyfoot{display:none}.sheet-backdrop{position:fixed;inset:0;background:rgba(24,53,53,.35);z-index:9;display:none;align-items:flex-end;justify-content:center}.sheet-backdrop.open{display:flex}.sheet{width:min(100%,470px);background:#fff;border-radius:24px 24px 0 0;padding:22px 23px calc(22px + env(safe-area-inset-bottom));box-shadow:0 -18px 45px rgba(0,0,0,.1)}.sheet h2{font-size:21px;letter-spacing:-.035em;margin:0 0 9px}.sheet p{font-size:14px;line-height:1.85;color:#5d7879;margin:6px 0 13px}.sheet .ex{background:#f3f8f5;border-radius:14px;padding:15px;margin:10px 0;font-size:13px;line-height:1.7;color:#466a68}.sheet .close{border:0;border-radius:13px;background:#1a9e9b;color:#fff;height:45px;width:100%;margin-top:10px;font-weight:700}.sheet .color{display:inline-block;width:9px;height:9px;border-radius:50%;vertical-align:middle;margin:0 2px 2px}.teal{background:#20afa9}.gold{background:#deb46e}.blink-once{animation:blink .65s ease-out}@keyframes blink{0%,100%{opacity:1}45%{opacity:.52}}.panel.won #resultGroup{animation:winpulse .7s ease-out}@keyframes winpulse{0%{opacity:1;filter:brightness(1)}35%{opacity:1;filter:brightness(1.25)}100%{opacity:1;filter:brightness(1)}}@media(max-height:730px){.app{padding-top:calc(env(safe-area-inset-top) + 6px)}.progress{margin:4px 2px 9px}.caption-head{margin-bottom:6px}.tinyfoot{margin-top:6px}.microhint{min-height:28px;padding-top:7px}.actions{margin-top:4px}}@media(max-width:340px){.app{padding-left:9px;padding-right:9px}.title{font-size:22px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}</style>
+</head><body><div class="app">
+<header class="head"><div class="brand"><span class="logo"></span>ECHO WEAVE</div><div class="head-right"><span class="count"><b id="stageNo">01</b> / 12</span><button id="helpBtn" class="icon-btn" aria-label="しくみを見る" title="しくみを見る"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.6 2.6 0 0 1 5.1.7c0 2-2.6 2.5-2.6 4.1M12 17.3h.01" stroke-linecap="round"/></svg></button><button id="soundBtn" class="icon-btn" aria-label="音のオンオフ" title="音のオンオフ"><svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/></svg></button></div></header>
+<div id="progress" class="progress"></div>
+<div class="caption-head"><div><h1 class="title" id="stageTitle">ひとつの光から</h1><div class="subtitle" id="stageHint">水色を動かしてみよう</div></div><span class="tag">TOUCH & DISCOVER</span></div>
+<main id="panel" class="panel"><svg id="field" viewBox="0 0 360 562" aria-label="水色と金色の玉をドラッグし、上の見本に光の模様を合わせる" role="application">
+<defs><radialGradient id="cyanFill" cx=".3" cy=".22" r=".9"><stop stop-color="#d4fff5"/><stop offset=".46" stop-color="#5edbcc"/><stop offset="1" stop-color="#119e9f"/></radialGradient><radialGradient id="goldFill" cx=".32" cy=".2" r=".9"><stop stop-color="#fff8e8"/><stop offset=".48" stop-color="#eccb93"/><stop offset="1" stop-color="#d9a35c"/></radialGradient><radialGradient id="mintFill" cx=".3" cy=".25" r=".85"><stop stop-color="#e6fff3"/><stop offset=".52" stop-color="#71d8c0"/><stop offset="1" stop-color="#1aae9d"/></radialGradient><filter id="softGlow" x="-90%" y="-100%" width="280%" height="300%"><feDropShadow dx="0" dy="2.2" stdDeviation="2" flood-color="#2b9c86" flood-opacity=".23"/></filter><filter id="goldShadow" x="-80%" y="-80%" width="260%" height="260%"><feDropShadow dx="0" dy="2.5" stdDeviation="2.2" flood-color="#b98035" flood-opacity=".21"/></filter><linearGradient id="threadFill" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#3ac3b2" stop-opacity=".65"/><stop offset="1" stop-color="#98d8c3" stop-opacity=".14"/></linearGradient></defs>
+<!-- Shared coordinates 30 + 27.2*i across 12 sites -->
+<rect x="14" y="17" width="332" height="177" rx="22" fill="#f1f9f5"/>
+<text class="svg-label" x="30" y="43">かさねた光</text><text class="svg-micro" x="330" y="43" text-anchor="end">うすい輪が 見本</text>
+<g id="targetGroup"></g><g id="resultGuide"></g><g id="resultGroup"></g><g id="winLine"></g>
+<g id="layerShade"><rect x="14" y="201" width="332" height="160" rx="17" fill="#fafcfb" stroke="#edf2ef"/><text class="svg-label" x="30" y="223">光のコピー</text><text class="svg-micro" x="330" y="223" text-anchor="end" id="copySub">水色の数だけ 生まれる</text><g id="copyRows"></g></g>
+<g id="connectLines" pointer-events="none"></g>
+<g id="rails"><text class="svg-label" x="30" y="387"><tspan fill="#119e9f">●</tspan> 水色 ─ コピーを置く場所</text><g id="railA"></g><g id="piecesA"></g><text class="svg-label" x="30" y="480"><tspan fill="#d5a15b">●</tspan> 金色 ─ コピーのかたち</text><g id="railB"></g><g id="piecesB"></g></g>
+<rect id="hitA" x="14" y="392" width="332" height="70" rx="14" fill="transparent" style="touch-action:none;cursor:grab"/>
+<rect id="hitB" x="14" y="484" width="332" height="69" rx="14" fill="transparent" style="touch-action:none;cursor:grab"/>
+<g id="handGlow" pointer-events="none"></g>
+</svg><div class="board-foot"><button id="layersBtn" class="mode-btn"><span id="layerSymbol" class="chevron">▾</span> <span id="layerText">コピーを隠す</span></button><span id="overlapLegend" class="legend"><i></i>重なると2個分</span></div></main>
+<div id="feedback" class="microhint">水色の玉を横にすべらせてみよう</div>
+<div class="actions"><button id="prevBtn" class="smallbtn" title="前のステージ" aria-label="前のステージ"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="m14 5-7 7 7 7"/></svg></button><button id="resetBtn" class="smallbtn" title="やりなおし" aria-label="やりなおし"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M20 8a8 8 0 1 0 1 6M20 4v5h-5"/></svg></button><button id="nextBtn" class="next" disabled>光をそろえよう</button></div>
+<div class="tinyfoot">ONE MOVE · MANY ECHOES</div>
 </div>
-<div class="bottomSpace"></div>
-<footer class="foot">A LITTLE EXPERIMENT IN MATHEMATICS</footer>
-</div>
+<div id="sheetOverlay" class="sheet-backdrop" role="dialog" aria-modal="true" aria-label="ゲームのしくみ"><div class="sheet"><h2>光がふえる仕組み</h2><p><span class="color teal"></span> 水色の玉は、<b>金色の並びをコピーする場所</b>。水色の玉を1つ置くたびに、金色と同じ並びが1組生まれる。</p><div class="ex"><b>ためしてみよう</b><div style="display:flex;justify-content:space-evenly;margin:12px 0"><span style="color:#119e9f">●</span><span style="color:#d5a15b">●　●　●</span><span style="color:#638f87">→</span><span style="color:#15a79a">●　●　●</span></div>水色を右へ動かすと、そのコピーも丸ごと右へ動く。<br>金色を動かすと、<b>すべてのコピーの同じ位置</b>が動く。</div><p>上の「かさねた光」は、全部のコピーを1列にまとめたもの。2個が同じ場所に来たら<b>2個重なったまま</b>。見本も2個なら正解になる。</p><button id="closeSheet" class="close">ゲームに戻る</button></div></div>
 <script>
 (()=>{'use strict';
-const N=11, SX=37, PITCH=28.6, Y={a:344,b:450,out:152};
+const NS='http://www.w3.org/2000/svg',N=12,START=30,STEP=27.2,Y={out:119,a:427,b:520};
 const stages=[
- {name:'ひとつ動かす',hint:'水色の光を横にすべらせよう',a:[0,3],b:[0,2,4],goalA:[0,1],goalB:[0,2,4],moveA:[1],moveB:[]},
- {name:'光をひろげる',hint:'金色の光を動かしてみよう',a:[0,1],b:[0,3,5],goalA:[0,1],goalB:[0,3,6],moveA:[],moveB:[2]},
- {name:'すきまを埋める',hint:'水色を動かすと、上も変わる',a:[0,4],b:[0,1,4],goalA:[0,2],goalB:[0,1,4],moveA:[1],moveB:[]},
- {name:'つながる光',hint:'6つの輪を光で満たそう',a:[0,5],b:[0,1,2],goalA:[0,3],goalB:[0,1,2],moveA:[1],moveB:[]},
- {name:'金色のひみつ',hint:'金色の光を少しずらしてみよう',a:[0,2],b:[0,1,5],goalA:[0,2],goalB:[0,1,4],moveA:[],moveB:[2]},
- {name:'ふたつを動かす',hint:'どちらの光も動かせるよ',a:[0,2],b:[0,3,4],goalA:[0,1],goalB:[0,3,6],moveA:[1],moveB:[2]},
- {name:'光がかさなる',hint:'重なった光は、少し濃くなる',a:[0,1,5],b:[0,3],goalA:[0,1,4],goalB:[0,3],moveA:[2],moveB:[]},
- {name:'ふたつの指先',hint:'水色の2つの光を動かそう',a:[0,2,5],b:[0,2],goalA:[0,1,4],goalB:[0,2],moveA:[1,2],moveB:[]},
- {name:'ずらしてみる',hint:'2色の光を組み合わせよう',a:[0,1],b:[0,2,5],goalA:[0,2],goalB:[0,1,5],moveA:[1],moveB:[1]},
- {name:'光の重なり',hint:'2つ重なる場所も、ぴったり',a:[0,2,5],b:[0,1,4],goalA:[0,2,4],goalB:[0,1,3],moveA:[2],moveB:[2]},
- {name:'六つの連なり',hint:'どの光から動かす？',a:[0,1,3],b:[0,2],goalA:[0,2,4],goalB:[0,1],moveA:[1,2],moveB:[1]},
- {name:'ひかりの織り目',hint:'最後の模様を完成させよう',a:[0,1,4],b:[0,2,3],goalA:[0,3,6],goalB:[0,1,2],moveA:[1,2],moveB:[1,2]}
+ {title:'ひとつのコピー',hint:'水色を動かすと、上の3つがついてくる',a:[2],b:[0,1,3],ga:[4],gb:[0,1,3],am:[0],bm:[]},
+ {title:'そろって動く',hint:'水色1つで、金色の並びを丸ごと動かす',a:[1],b:[0,2,4],ga:[3],gb:[0,2,4],am:[0],bm:[]},
+ {title:'コピーがふたつ',hint:'水色が2つ。上にも同じ模様が2組',a:[0,6],b:[0,2,4],ga:[0,1],gb:[0,2,4],am:[1],bm:[]},
+ {title:'すきまを埋める',hint:'2組の光を、すきまなく並べよう',a:[0,3],b:[0,2,4],ga:[0,1],gb:[0,2,4],am:[1],bm:[]},
+ {title:'光の帯',hint:'同じ3つの並びから、6つの光を作ろう',a:[0,5],b:[0,1,2],ga:[0,3],gb:[0,1,2],am:[1],bm:[]},
+ {title:'ずらしてみる',hint:'水色を動かすと、まとまりごと移動する',a:[0,2],b:[0,3],ga:[0,1],gb:[0,3],am:[1],bm:[]},
+ {title:'型を変える',hint:'今度は、金色の玉を動かしてみよう',a:[0,3],b:[0,4],ga:[0,3],gb:[0,1],am:[],bm:[1]},
+ {title:'ふたつの手がかり',hint:'水色も金色も動かせる',a:[0,4],b:[0,3],ga:[0,2],gb:[0,1],am:[1],bm:[1]},
+ {title:'ふたつが重なる',hint:'同じ場所に来た光は、2個重なる',a:[0,3],b:[0,2,4],ga:[0,2],gb:[0,2,4],am:[1],bm:[]},
+ {title:'重なりをつくる',hint:'見本の二重の輪には、光が2つ必要',a:[0,3],b:[0,1,2],ga:[0,1],gb:[0,1,2],am:[1],bm:[]},
+ {title:'3つのコピー',hint:'ひとつ動くたび、金色の並びがついてくる',a:[0,4,7],b:[0,1],ga:[0,2,5],gb:[0,1],am:[1,2],bm:[]},
+ {title:'光を編む',hint:'2色を動かして、最後の模様を完成させる',a:[0,3],b:[0,1,4],ga:[0,2],gb:[0,1,3],am:[1],bm:[1,2]}
 ];
-const $=id=>document.getElementById(id);const NS='http://www.w3.org/2000/svg';const svg=$('playfield'),board=$('board');
-function node(tag,attrs={},parent){const n=document.createElementNS(NS,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,v));if(parent)parent.append(n);return n}
-function cx(p){return SX+p*PITCH}
-function convolution(a,b){const vals=Array(N).fill(0);for(const x of a)for(const y of b){const pos=x+y;if(pos>=0&&pos<N)vals[Math.round(pos)]++}return vals}
-function goalOf(stage){return convolution(stage.goalA,stage.goalB)}
-let level=0,model=null,goal=null,solved=false,drag=null,beads={a:[],b:[]},outputs=[],audio=null,soundOn=true,lastTick=0,anim=null,winTime=0;
-try{const saved=Number(localStorage.getItem('ew2_level'));if(Number.isInteger(saved)&&saved>=0&&saved<stages.length)level=saved;const sound=localStorage.getItem('ew2_sound');if(sound!==null)soundOn=sound==='1'}catch(_){}
-const icons={on:'<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/>',off:'<path d="M11 5 6 9H3v6h3l5 4V5Z"/><path d="m16 9 5 6m0-6-5 6"/>'};
-function updateSoundIcon(){$('soundIcon').innerHTML=icons[soundOn?'on':'off']}
-function ensureAudio(){if(!soundOn)return null;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!audio)audio=new AC();if(audio.state==='suspended')audio.resume().catch(()=>{});return audio}catch(_){return null}}
-function note(frequency,volume=.017,seconds=.07,delay=0){const a=ensureAudio();if(!a)return;const time=a.currentTime+delay;const osc=a.createOscillator(),gain=a.createGain(),filter=a.createBiquadFilter();osc.type='sine';filter.type='lowpass';filter.frequency.value=2300;osc.frequency.setValueAtTime(frequency,time);osc.frequency.exponentialRampToValueAtTime(frequency*.96,time+seconds);gain.gain.setValueAtTime(.00001,time);gain.gain.exponentialRampToValueAtTime(volume,time+.004);gain.gain.exponentialRampToValueAtTime(.00001,time+seconds);osc.connect(filter);filter.connect(gain);gain.connect(a.destination);osc.start(time);osc.stop(time+seconds+.012)}
-function tick(){let t=performance.now();if(t-lastTick<75)return;lastTick=t;note(850,.006,.035)}
-function dockSound(){note(940,.016,.060);note(1410,.004,.043,.009)}
-function victory(){note(587.33,.018,.20);note(880,.016,.28,.12);note(1174.66,.008,.35,.26)}
-function renderProgress(){$('progress').innerHTML=stages.map((_,i)=>'<span class="'+(i<level?'done':i===level?'current':'')+'"></span>').join('')}
-function renderTicks(){for(const lane of ['a','b']){const g=$('ticks'+lane.toUpperCase());g.replaceChildren();for(let i=0;i<N;i++)node('circle',{cx:cx(i),cy:Y[lane],r:2,class:'tick'},g)}}
-function renderGoals(){const a=$('goals'),grid=$('ghostGrid');a.replaceChildren();grid.replaceChildren();for(let i=0;i<N;i++)node('circle',{cx:cx(i),cy:Y.out,r:2.1,fill:'#deebe5'},grid);
- for(let i=0;i<N;i++)if(goal[i]){node('circle',{cx:cx(i),cy:Y.out,r:goal[i]>1?15.2:13.7,fill:goal[i]>1?'#f6eee2':'#eaf2ef',stroke:goal[i]>1?'#e5cda7':'#c6dad3','stroke-width':goal[i]>1?1.7:1.65},a);if(goal[i]>1)node('circle',{cx:cx(i),cy:Y.out,r:10,fill:'none',stroke:'#ddc39c','stroke-width':1.05},a)} }
-function renderPieces(){for(const lane of ['a','b']){const group=$('pieces'+lane.toUpperCase());group.replaceChildren();beads[lane]=[];model[lane].forEach((v,i)=>{const canMove=stages[level]['move'+lane.toUpperCase()].includes(i);const wrap=node('g',{'data-index':i},group);const aura=node('circle',{cx:cx(v),cy:Y[lane],r:24,fill:lane==='a'?'#8de4dc':'#f0d19b',opacity:0,class:'pieceGlow'+(level<=1&&canMove?' pulse show':'')},wrap);
- const outer=node('circle',{cx:cx(v),cy:Y[lane],r:canMove?16.8:13.2,fill:lane==='a'?'#d6f6ef':'#faedda',opacity:canMove?.56:.42},wrap);
- const core=node('circle',{cx:cx(v),cy:Y[lane],r:canMove?12.6:9.7,fill:lane==='a'?'url(#tealPiece)':'url(#goldPiece)',class:'piece'+(canMove?'':' fixedPiece')},wrap);
- const highlight=node('circle',{cx:cx(v)-3,cy:Y[lane]-3.2,r:canMove?3.5:2.5,fill:'#fff',opacity:canMove?.65:.43},wrap);
- beads[lane].push({aura,outer,core,highlight,canMove,wrap})})}}
-function makeOutputs(){const group=$('resultDots');group.replaceChildren();outputs=[];for(let ai=0;ai<model.a.length;ai++)for(let bi=0;bi<model.b.length;bi++){let g=node('g',{},group);let halo=node('circle',{cx:0,cy:Y.out,r:16,fill:'#57d3bb',opacity:'.10'},g);let circle=node('circle',{cx:0,cy:Y.out,r:9.3,class:'baseOrb'},g);let glint=node('circle',{cx:0,cy:Y.out,r:2.7,fill:'#edfff9',opacity:'.55'},g);outputs.push({ai,bi,g,halo,circle,glint})}}
-function pointFromEvent(ev){const p=svg.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;const matrix=svg.getScreenCTM();return matrix?p.matrixTransform(matrix.inverse()):{x:ev.clientX,y:ev.clientY}}
-function effectiveMax(lane){const other=lane==='a'?'b':'a';return N-1-Math.max(...model[other])}
-function nearestFree(lane,index,desired){const max=effectiveMax(lane),occupied=model[lane].map((v,j)=>j===index?null:Math.round(v)).filter(v=>v!==null);const candidates=Array.from({length:max+1},(_,i)=>i).filter(v=>!occupied.includes(v));return candidates.length?candidates.reduce((p,c)=>Math.abs(c-desired)<Math.abs(p-desired)?c:p,candidates[0]):Math.round(model[lane][index])}
-function getLiveCounts(){const arr=Array(N).fill(0);if(!drag){for(const x of model.a)for(const y of model.b){const s=x+y;if(Math.abs(s-Math.round(s))<.001&&s>=0&&s<N)arr[Math.round(s)]++}}return arr}
-function drawThreads(){const lines=$('threads');lines.replaceChildren();if(!drag)return;const lane=drag.lane,index=drag.index;const moves=lane==='a'?model.b:model.a;const fromX=cx(model[lane][index]),fromY=Y[lane];for(const offset of moves){const toX=cx(model[lane][index]+offset),toY=Y.out+10;const arc=lane==='a'?`M ${fromX} ${fromY-13} C ${fromX} ${fromY-72}, ${toX} ${toY+80}, ${toX} ${toY}`:`M ${fromX} ${fromY-15} C ${fromX} ${fromY-118}, ${toX} ${toY+75}, ${toX} ${toY}`;const color=lane==='a'?'url(#threadA)':'url(#threadB)';node('path',{d:arc,class:'thread',stroke:color},lines);node('path',{d:arc,class:'threadpulse',stroke:color},lines)}}
-function paint(){if(!model)return;
- for(const lane of ['a','b'])model[lane].forEach((v,i)=>{const p=beads[lane][i],sel=!!drag&&drag.lane===lane&&drag.index===i;p.aura.setAttribute('cx',cx(v));p.aura.setAttribute('opacity',sel?'.28':!solved&&level<=1&&p.canMove?'.18':'0');p.outer.setAttribute('cx',cx(v));p.core.setAttribute('cx',cx(v));p.core.setAttribute('r',sel?'14.1':p.canMove?'12.6':'9.7');p.highlight.setAttribute('cx',cx(v)-3);p.wrap.classList.toggle('select',sel)});
- let counts=Array(N).fill(0);for(const item of outputs){const value=model.a[item.ai]+model.b[item.bi];if(Math.abs(Math.round(value)-value)<.06&&value>=0&&value<N)counts[Math.round(value)]++}
- for(const item of outputs){const {ai,bi,circle,halo,glint}=item;const v=model.a[ai]+model.b[bi];const isHot=drag&&((drag.lane==='a'&&drag.index===ai)||(drag.lane==='b'&&drag.index===bi));let double=Math.abs(v-Math.round(v))<.09&&counts[Math.round(v)]>1;
- item.g.setAttribute('transform',`translate(${cx(v)} 0)`);halo.setAttribute('opacity',isHot?'.30':double?'.18':'.08');halo.setAttribute('fill',double?'#e6b76f':'#56d8b7');halo.setAttribute('r',isHot?19:double?17:14);circle.setAttribute('class',double?'doubleOrb':isHot?'activeOrb':'baseOrb');circle.setAttribute('r',isHot?10.4:double?10.5:9);circle.setAttribute('opacity',drag&&!isHot?'.58':'.95')}
- const ghost=$('snapGhost');if(drag){const v=model[drag.lane][drag.index];const nearest=nearestFree(drag.lane,drag.index,Math.round(v));$('snapCircle').setAttribute('cx',cx(nearest));$('snapCircle').setAttribute('cy',Y[drag.lane]);$('snapCircle').setAttribute('stroke',drag.lane==='a'?'#41b6b0':'#d3ac67')}
- drawThreads();
+const $=id=>document.getElementById(id),svg=$('field'),panel=$('panel');let level=0,state=null,goal=[],drag=null,won=false,showLayers=true,frames=null,shapes={a:[],b:[]},audio=null,sound=true,lastTick=0,focus=null,completeMemory=0;
+try{sound=localStorage.getItem('echo3_sound')!=='0';level=Math.max(0,Math.min(stages.length-1,Number(localStorage.getItem('echo3_level'))||0))}catch(_){}
+const x=v=>START+STEP*v;
+function el(name,props={},parent){const e=document.createElementNS(NS,name);for(let k in props)e.setAttribute(k,props[k]);if(parent)parent.append(e);return e}
+function wipe(node){node.replaceChildren()}
+function count(a,b){const arr=Array(N).fill(0);for(const av of a)for(const bv of b){const v=av+bv;if(Number.isInteger(v)&&v>=0&&v<N)arr[v]++}return arr}
+function outOf(s){return count(s.ga,s.gb)}
+function note(hz,vol=.02,length=.07,delay=0){if(!sound)return;try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!audio)audio=new AC();if(audio.state==='suspended')audio.resume();const t=audio.currentTime+delay,o=audio.createOscillator(),g=audio.createGain();o.type='sine';o.frequency.setValueAtTime(hz,t);o.frequency.exponentialRampToValueAtTime(hz*.88,t+length);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(Math.max(.0002,vol),t+.006);g.gain.exponentialRampToValueAtTime(.0001,t+length);o.connect(g);g.connect(audio.destination);o.start(t);o.stop(t+length+.01)}catch(_){}}
+function tick(){let t=performance.now();if(t-lastTick>40){lastTick=t;note(950,.011,.044)}}function dock(){note(740,.019,.082)}function success(){note(523.25,.026,.32);note(659.26,.017,.3,.075);note(783.99,.012,.32,.15)}
+function renderProgress(){let p=$('progress');wipe(p);for(let i=0;i<stages.length;i++){let q=document.createElement('span');if(i===level)q.className='current';else if(i<level)q.className='past';p.append(q)}}
+function rails(){for(const lane of ['a','b']){const g=$('rail'+lane.toUpperCase());wipe(g);const y=Y[lane];el('line',{x1:x(0),y1:y,x2:x(N-1),y2:y,class:'track'},g);for(let i=0;i<N;i++)el('circle',{cx:x(i),cy:y,r:2.3,class:'grid-dot'},g)}}
+function target(){let g=$('targetGroup');wipe(g);let gg=$('resultGuide');wipe(gg);for(let i=0;i<N;i++)el('circle',{cx:x(i),cy:Y.out,r:2.3,fill:'#dfebe5'},gg);for(let i=0;i<N;i++){if(!goal[i])continue;el('circle',{cx:x(i),cy:Y.out,r:goal[i]>1?14.4:12.8,class:'target'+(goal[i]>1?' duo':'')},g);if(goal[i]>1){el('circle',{cx:x(i)+4.3,cy:Y.out-4.3,r:11.3,stroke:'#d9b27b','stroke-width':1.55,fill:'none'},g);el('text',{x:x(i),y:Y.out+3.8,'text-anchor':'middle','font-size':10,fill:'#ba9464','font-weight':750},g).textContent=goal[i]}}}
+function pieces(){for(const lane of ['a','b']){let g=$('pieces'+lane.toUpperCase());wipe(g);shapes[lane]=[];let values=state[lane],move=stages[level][lane==='a'?'am':'bm'];values.forEach((v,i)=>{let root=el('g',{},g);let ring=el('circle',{cx:x(v),cy:Y[lane],r:20,fill:lane==='a'?'#b2ece0':'#f6dcb2',opacity:move.includes(i)?'.55':'.17'},root);let outer=el('circle',{cx:x(v),cy:Y[lane],r:move.includes(i)?15:12.4,fill:lane==='a'?'#e2faf4':'#fff5e7',opacity:move.includes(i)?'.95':'.6'},root);let main=el('circle',{cx:x(v),cy:Y[lane],r:move.includes(i)?11.6:9.2,fill:lane==='a'?'url(#cyanFill)':'url(#goldFill)',filter:lane==='b'?'url(#goldShadow)':'url(#softGlow)'},root);let dot=el('circle',{cx:x(v)-3,cy:Y[lane]-3,r:2.7,fill:'#fff',opacity:.75},root);shapes[lane].push({root,ring,outer,main,dot,move:move.includes(i)})})}}
+function result(){let g=$('resultGroup');wipe(g);let counts=Array(N).fill(0);let coords=[];for(let i=0;i<state.a.length;i++)for(let j=0;j<state.b.length;j++){const pos=state.a[i]+state.b[j];coords.push({i,j,pos});if(Math.abs(Math.round(pos)-pos)<.02&&pos>=0&&pos<N)counts[Math.round(pos)]++}
+ // Draw as true separate discs when multiples coincide, not a hue change.
+ coords.sort((q,r)=>q.i-r.i||q.j-r.j);let drawn={};for(const c of coords){let key=Math.round(c.pos),same=Math.abs(c.pos-key)<.015?(drawn[key]||0):0;const quantity=counts[key]||1;let left=quantity>1?((same-(quantity-1)/2)*4.5):0;let top=quantity>1?((same-(quantity-1)/2)*-4.5):0;let active=!!focus&&((focus.lane==='a'&&focus.idx===c.i)||(focus.lane==='b'&&focus.idx===c.j));let opacity=focus&&!active?.28:1;
+ el('circle',{cx:x(c.pos)+left,cy:Y.out+top,r:quantity>1?10.5:11.5,fill:active?'url(#cyanFill)':'url(#mintFill)',stroke:'#e7fff4','stroke-width':quantity>1?1.6:.75,opacity,class:'result-dot'},g);if(Math.abs(c.pos-key)<.015)drawn[key]=(drawn[key]||0)+1;}
+ for(let i=0;i<N;i++)if(counts[i]>1){el('circle',{cx:x(i),cy:Y.out,r:7,fill:'#f9f4e8',opacity:'.91'},g);const e=el('text',{x:x(i),y:Y.out+3.3,'text-anchor':'middle','font-size':'10.1','font-weight':'800',fill:'#a9763d'},g);e.textContent=counts[i]}
 }
-function stopAnimation(){if(anim){cancelAnimationFrame(anim);anim=null}}
-function snapTo(lane,index,to,done){stopAnimation();const from=model[lane][index];const delta=to-from;const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;if(reduced||Math.abs(delta)<.03){model[lane][index]=to;paint();done();return}
- let start=null;const duration=112;const run=now=>{if(start===null)start=now;const t=Math.min(1,(now-start)/duration);const eased=1-Math.pow(1-t,3);model[lane][index]=from+delta*eased;paint();if(t<1)anim=requestAnimationFrame(run);else{anim=null;model[lane][index]=to;paint();done()}};anim=requestAnimationFrame(run)}
-function endDrag(ev,cancel=false){if(!drag||ev.pointerId!==drag.pointerId)return;const d=drag;const zone=$('zone'+d.lane.toUpperCase());try{zone.releasePointerCapture(ev.pointerId)}catch(_){};drag=null;board.classList.remove('dragging');const dest=cancel?d.origin:nearestFree(d.lane,d.index,Math.round(model[d.lane][d.index]));const different=Math.abs(dest-d.origin)>.02;
- snapTo(d.lane,d.index,dest,()=>{if(different)dockSound();paint();checkWin()});}
-function startDrag(ev,lane){if(solved||drag||ev.button>0)return;stopAnimation();const movable=stages[level]['move'+lane.toUpperCase()];if(!movable.length)return;const p=pointFromEvent(ev);let closest=movable[0];for(const index of movable)if(Math.abs(cx(model[lane][index])-p.x)<Math.abs(cx(model[lane][closest])-p.x))closest=index;
- if(Math.abs(cx(model[lane][closest])-p.x)>29)return;
- drag={lane,index:closest,pointerId:ev.pointerId,origin:model[lane][closest],pointerOrigin:p.x,lastRounded:Math.round(model[lane][closest]),travel:0};board.classList.add('dragging');$('zone'+lane.toUpperCase()).setPointerCapture(ev.pointerId);ensureAudio();ev.preventDefault();paint();}
-function moveDrag(ev){if(!drag||ev.pointerId!==drag.pointerId)return;const p=pointFromEvent(ev),d=drag;const delta=(p.x-d.pointerOrigin)/PITCH;const max=effectiveMax(d.lane);const next=Math.max(0,Math.min(max,d.origin+delta));if(Math.abs(next-model[d.lane][d.index])<.0001)return;model[d.lane][d.index]=next;d.travel=Math.max(d.travel,Math.abs(delta));const rounded=Math.round(next);if(rounded!==d.lastRounded){d.lastRounded=rounded;tick()}paint();ev.preventDefault()}
-function checkWin(){if(solved)return;const live=convolution(model.a.map(Math.round),model.b.map(Math.round));if(!live.every((v,i)=>v===goal[i]))return;solved=true;board.classList.add('won');winTime=performance.now();$('hint').textContent='きれいに そろった';$('next').disabled=false;$('next').classList.add('ready');$('nextText').textContent=level===stages.length-1?'もういちど':'次のステージ';const hit=live.map((v,i)=>v?i:-1).filter(x=>x>=0);const first=hit[0],last=hit.at(-1);$('winStroke').setAttribute('d',`M ${cx(first)-13} ${Y.out+24} Q ${cx((first+last)/2)} ${Y.out+33} ${cx(last)+13} ${Y.out+24}`);victory();try{localStorage.setItem('ew2_level',String(level===stages.length-1?0:level+1))}catch(_){} }
-function loadStage(index){stopAnimation();level=Math.max(0,Math.min(index,stages.length-1));const s=stages[level];model={a:[...s.a],b:[...s.b]};goal=goalOf(s);solved=false;drag=null;board.classList.remove('dragging','won');$('stageNum').textContent=String(level+1).padStart(2,'0');$('stageTitle').textContent=s.name;$('hint').textContent=s.hint;$('next').disabled=true;$('next').classList.remove('ready');$('nextText').textContent='光をそろえる';$('back').disabled=level===0;
- $('aGuide').textContent=s.moveA.length?'スライド':'固定';$('bGuide').textContent=s.moveB.length?'スライド':'固定';renderProgress();renderGoals();renderPieces();makeOutputs();paint();try{localStorage.setItem('ew2_level',String(level))}catch(_){} }
-for(const lane of ['a','b']){const z=$('zone'+lane.toUpperCase());z.addEventListener('pointerdown',e=>startDrag(e,lane));z.addEventListener('pointermove',moveDrag);z.addEventListener('pointerup',e=>endDrag(e,false));z.addEventListener('pointercancel',e=>endDrag(e,true));}
-$('sound').addEventListener('click',()=>{soundOn=!soundOn;try{localStorage.setItem('ew2_sound',soundOn?'1':'0')}catch(_){}updateSoundIcon();if(soundOn){ensureAudio();note(940,.014,.09)}});
-$('back').addEventListener('click',()=>{loadStage(level-1);note(690,.01,.04)});$('reset').addEventListener('click',()=>{loadStage(level);note(690,.01,.04)});$('next').addEventListener('click',()=>{if(!solved)return;loadStage(level===stages.length-1?0:level+1);note(880,.014,.09)});
-// Debug interface for automated stage verification. Not part of gameplay.
-window.__echoV2={stages,loadStage,getState:()=>({level,solved,model:JSON.parse(JSON.stringify(model)),goal:[...goal]}),setPosition:(lane,index,pos)=>{model[lane][index]=pos;paint()},checkWin};
-for(const [i,s] of stages.entries()){if(JSON.stringify(convolution(s.a,s.b))===JSON.stringify(goalOf(s)))throw Error('Stage starts solved: '+i);if(Math.max(...s.goalA)+Math.max(...s.goalB)>=N)throw Error('Stage out of bounds: '+i)}
-renderTicks();updateSoundIcon();loadStage(level);
-})();
-</script>
-</body>
-</html>
+function copies(){let g=$('copyRows');wipe(g);let shade=$('layerShade');shade.style.opacity=showLayers?'1':'0';shade.style.pointerEvents='none';if(!showLayers)return;const num=state.a.length;let ys=num===1?[293]:num===2?[269,319]:[253,290,327];state.a.forEach((v,i)=>{const y=ys[i];let chosen=focus?.lane==='a'?focus.idx===i:!focus;let opacity=focus?.lane==='a'&&!chosen?.35:1;el('rect',{x:19,y:y-16,width:321,height:32,rx:16,fill:chosen&&focus?'#edf9f5':'#fff',stroke:chosen&&focus?'#a5d8cc':'#e8efeb','stroke-width':'1',opacity},g);
+ el('line',{x1:20,y1:y-10,x2:20,y2:y+10,stroke:'#58bfb0','stroke-width':2,opacity},g);
+ for(let j=0;j<state.b.length;j++){let show=focus?.lane==='b'?focus.idx===j:!focus||focus?.lane==='a'&&focus.idx===i;let p=state.a[i]+state.b[j];el('circle',{cx:x(p),cy:y,r:7.2,fill:show?'#dba75f':'#ead5b6',stroke:'#fff','stroke-width':.8,opacity:show?opacity:.35},g)}
+ });
+}
+function connections(){let g=$('connectLines');wipe(g);if(!focus||!showLayers)return;let n=state.a.length,ys=n===1?[293]:n===2?[269,319]:[253,290,327];if(focus.lane==='a'){let i=focus.idx;for(let j=0;j<state.b.length;j++){let xp=x(state.a[i]+state.b[j]);el('path',{d:`M ${x(state.a[i])} ${Y.a-17} Q ${xp+20} ${ys[i]+55} ${xp} ${ys[i]+8}`,fill:'none',stroke:'#70c9ba','stroke-width':1.7,'stroke-dasharray':'3 6',opacity:.43},g)}}else{let j=focus.idx;for(let i=0;i<state.a.length;i++){let xp=x(state.a[i]+state.b[j]);el('path',{d:`M ${x(state.b[j])} ${Y.b-17} Q ${xp+44} ${ys[i]+70} ${xp} ${ys[i]+8}`,fill:'none',stroke:'#d4ad6e','stroke-width':1.65,'stroke-dasharray':'3 6',opacity:.4},g)}}}
+function draw(){if(!state)return;for(const lane of ['a','b'])state[lane].forEach((v,i)=>{let sh=shapes[lane][i],sel=focus?.lane===lane&&focus.idx===i;for(const elem of [sh.ring,sh.outer,sh.main])elem.setAttribute('cx',x(v));sh.dot.setAttribute('cx',x(v)-3);sh.ring.setAttribute('opacity',sel?'.64':sh.move?'.3':'.12');sh.ring.setAttribute('r',sel?23:20);sh.main.setAttribute('r',sel?13:sh.move?11.6:9.2)});result();copies();connections()}
+function toSvg(ev){let pt=svg.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;let c=svg.getScreenCTM();return c?pt.matrixTransform(c.inverse()):{x:ev.clientX,y:ev.clientY}}
+function limit(lane){let other=lane==='a'?'b':'a';return N-1-Math.max(...state[other])}
+function nearest(lane,index,val){let choices=Array.from({length:limit(lane)+1},(_,i)=>i).filter(i=>state[lane].every((v,j)=>j===index||Math.abs(i-v)>.001));return choices.length?choices.reduce((a,b)=>Math.abs(b-val)<Math.abs(a-val)?b:a):state[lane][index]}
+function start(ev,lane){if(won||drag||ev.button>0)return;const pt=toSvg(ev),arr=state[lane],avail=stages[level][lane==='a'?'am':'bm'];let closest=0;for(let i=1;i<arr.length;i++)if(Math.abs(x(arr[i])-pt.x)<Math.abs(x(arr[closest])-pt.x))closest=i;if(Math.abs(x(arr[closest])-pt.x)>23)return;
+ if(!avail.includes(closest)){focus={lane,idx:closest};draw();setTimeout(()=>{if(!drag&&focus?.idx===closest&&focus?.lane===lane){focus=null;draw()}},650);note(560,.009,.05);return}
+ drag={lane,idx:closest,id:ev.pointerId,x0:pt.x,v0:arr[closest],last:Math.round(arr[closest]),orig:arr[closest],touched:false};focus={lane,idx:closest};$('hit'+lane.toUpperCase()).setPointerCapture(ev.pointerId);draw();ev.preventDefault()}
+function moving(ev){if(!drag||drag.id!==ev.pointerId)return;let pos=toSvg(ev),d=drag;let nv=Math.max(0,Math.min(limit(d.lane),d.v0+(pos.x-d.x0)/STEP));if(Math.abs(nv-state[d.lane][d.idx])<.0001)return;state[d.lane][d.idx]=nv;d.touched=true;if(Math.round(nv)!==d.last){d.last=Math.round(nv);tick()}draw();ev.preventDefault()}
+function snap(lane,idx,val,done){if(frames)cancelAnimationFrame(frames);let from=state[lane][idx];let delta=val-from;let begin=null;const run=t=>{if(begin===null)begin=t;const p=Math.min(1,(t-begin)/105);state[lane][idx]=from+delta*(1-Math.pow(1-p,3));draw();if(p<1)frames=requestAnimationFrame(run);else{frames=null;state[lane][idx]=val;draw();done()}};if(matchMedia('(prefers-reduced-motion:reduce)').matches){state[lane][idx]=val;draw();done()}else frames=requestAnimationFrame(run)}
+function end(ev){if(!drag||drag.id!==ev.pointerId)return;const d=drag;try{$('hit'+d.lane.toUpperCase()).releasePointerCapture(ev.pointerId)}catch(_){}drag=null;let chosen=nearest(d.lane,d.idx,Math.round(state[d.lane][d.idx]));snap(d.lane,d.idx,chosen,()=>{if(chosen!==d.orig)dock();focus=null;draw();check()})}
+function check(){if(won)return;let got=count(state.a.map(Math.round),state.b.map(Math.round));if(!got.every((v,i)=>v===goal[i]))return;won=true;panel.classList.add('won');$('feedback').textContent='ぴったり、ひとつになった';$('nextBtn').disabled=false;$('nextBtn').classList.add('ready');$('nextBtn').textContent=level===stages.length-1?'最初からあそぶ　→':'次のステージ　→';success();let g=$('winLine');wipe(g);let ps=goal.map((v,i)=>v?i:-1).filter(v=>v>=0);el('path',{d:`M ${x(ps[0])-15} ${Y.out+28} Q ${x((ps[0]+ps.at(-1))/2)} ${Y.out+39} ${x(ps.at(-1))+15} ${Y.out+28}`,fill:'none',stroke:'#48bfb0','stroke-width':2.1,'stroke-linecap':'round',opacity:.8},g);try{localStorage.setItem('echo3_level',String(level===stages.length-1?0:level+1))}catch(_){}}
+function load(i){if(frames)cancelAnimationFrame(frames);frames=null;level=Math.max(0,Math.min(stages.length-1,i));let s=stages[level];state={a:[...s.a],b:[...s.b]};goal=outOf(s);drag=null;focus=null;won=false;showLayers=true;panel.classList.remove('won');$('stageNo').textContent=String(level+1).padStart(2,'0');$('stageTitle').textContent=s.title;$('stageHint').textContent=s.hint;$('feedback').textContent=level<2?'水色の玉を横にすべらせてみよう':level===6?'金色の玉を横にすべらせてみよう':level>=8?'見本の輪の数までそろえよう':'薄い輪に、光をそろえよう';$('prevBtn').disabled=level===0;$('nextBtn').disabled=true;$('nextBtn').classList.remove('ready');$('nextBtn').textContent='光をそろえよう';$('overlapLegend').classList.toggle('show',level>=8);wipe($('winLine'));renderProgress();rails();target();pieces();updateLayerBtn();draw();try{localStorage.setItem('echo3_level',String(level))}catch(_){}}
+function updateLayerBtn(){$('layersBtn').classList.toggle('off',!showLayers);$('layerText').textContent=showLayers?'コピーを隠す':'コピーを見る';let group=$('layerShade');group.style.opacity=showLayers?'1':'0'}
+for(const lane of ['a','b']){const h=$('hit'+lane.toUpperCase());h.addEventListener('pointerdown',e=>start(e,lane));h.addEventListener('pointermove',moving);h.addEventListener('pointerup',end);h.addEventListener('pointercancel',end)}
+$('layersBtn').onclick=()=>{showLayers=!showLayers;updateLayerBtn();draw();note(890,.01,.05)};
+$('helpBtn').onclick=()=>{$('sheetOverlay').classList.add('open');note(890,.01,.05)};$('closeSheet').onclick=()=>{$('sheetOverlay').classList.remove('open')};$('sheetOverlay').addEventListener('click',e=>{if(e.target===$('sheetOverlay'))$('sheetOverlay').classList.remove('open')});
+$('soundBtn').onclick=()=>{sound=!sound;try{localStorage.setItem('echo3_sound',sound?'1':'0')}catch(_){}renderSound();if(sound)note(950,.014,.075)};
+function renderSound(){if(!sound){$('soundIcon').innerHTML='<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="m16 9 5 6m0-6-5 6"/>'}else{$('soundIcon').innerHTML='<path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15 9a5 5 0 0 1 0 6M18 6a9 9 0 0 1 0 12"/>'}}
+$('prevBtn').onclick=()=>load(level-1);$('resetBtn').onclick=()=>{load(level);note(650,.014,.07)};$('nextBtn').onclick=()=>{if(won)load(level===stages.length-1?0:level+1)};
+// Small deterministic test interface used to validate every generated stage.
+window.__echo3={stages,load,goal:()=>[...goal],get:()=>({level,won,showLayers,a:[...state.a],b:[...state.b]}),set:(lane,i,v)=>{state[lane][i]=v;draw()},check};
+for(let i=0;i<stages.length;i++){let s=stages[i],c=outOf(s);if(Math.max(...s.ga)+Math.max(...s.gb)>=N)throw Error('Goal out of bounds '+i);if(JSON.stringify(count(s.a,s.b))===JSON.stringify(c))throw Error('Stage starts solved '+i);if(s.ga.length!==s.a.length||s.gb.length!==s.b.length)throw Error('Inconsistent stage '+i);for(let j=0;j<s.a.length;j++)if(!s.am.includes(j)&&s.a[j]!==s.ga[j])throw Error('Unmovable A must not change '+i);for(let j=0;j<s.b.length;j++)if(!s.bm.includes(j)&&s.b[j]!==s.gb[j])throw Error('Unmovable B must not change '+i)}
+renderSound();load(level);
+})();</script></body></html>
